@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Journal — Caraland</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=DM+Sans:wght@200;300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #05060D;
+  --bg1:      #08091A;
+  --bg2:      #0C0D22;
+  --bg3:      #10112A;
+  --lift:     #161730;
+  --hover:    #1C1D38;
+
+  --indigo:   #6B7AE8;
+  --inhi:     #8E9CF0;
+  --ing:      rgba(107,122,232,.11);
+  --inr:      rgba(107,122,232,.2);
+
+  --violet:   #9B6BE8;
+  --vihi:     #B48CF0;
+
+  --teal:     #3D9B96;
+  --tehi:     #58BFB9;
+  --warm:     #C4956A;
+  --sand:     #DEC9A8;
+  --cream:    #EEEAE2;
+
+  --text:     #E8E4DC;
+  --muted:    #9896A8;
+  --dim:      #48495E;
+  --rule:     rgba(255,255,255,.05);
+  --rulei:    rgba(107,122,232,.2);
+
+  --r:  10px;
+  --rs: 6px;
+  --ease: .18s cubic-bezier(.4,0,.2,1);
+
+  --sans:   'DM Sans', sans-serif;
+  --serif:  'Cormorant Garamond', serif;
+  --script: 'Ballet', cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+.view{display:none}.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp .22s ease}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;border:none;transition:all var(--ease);letter-spacing:.02em}
+.btn-i{background:var(--indigo);color:#fff}.btn-i:hover{background:var(--inhi)}
+.btn-o{background:transparent;border:1px solid var(--rulei);color:var(--inhi)}.btn-o:hover{background:var(--ing)}
+.btn-ghost{background:transparent;border:1px solid var(--rule);color:var(--muted)}.btn-ghost:hover{border-color:var(--rulei);color:var(--inhi)}
+.btn-sm{padding:5px 11px;font-size:11.5px}
+.btn-danger{background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.2);color:#E07070}.btn-danger:hover{background:rgba(220,60,60,.2)}
+
+/* ═══════════════════════════════════
+   LIST VIEW
+   ═══════════════════════════════════ */
+#view-list{max-width:780px;margin:0 auto;padding:44px 24px}
+
+.list-hero{text-align:center;margin-bottom:44px;position:relative}
+.list-hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(1.2);width:300px;height:300px;background:radial-gradient(ellipse,rgba(107,122,232,.1) 0%,transparent 68%);pointer-events:none;border-radius:50%}
+.lh-moon{font-size:52px;display:block;margin-bottom:10px}
+.lh-title{font-family:var(--script);font-size:54px;letter-spacing:.16em;color:var(--inhi);line-height:1}
+.lh-sub{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-top:8px}
+
+.list-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.list-count{font-size:11.5px;color:var(--dim);letter-spacing:.05em}
+
+.list-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.filter-chip{padding:4px 12px;border-radius:100px;font-size:11px;cursor:pointer;border:1px solid var(--rule);background:var(--bg2);color:var(--muted);transition:all var(--ease)}
+.filter-chip:hover,.filter-chip.on{background:var(--ing);border-color:var(--rulei);color:var(--inhi)}
+
+.dream-list{display:flex;flex-direction:column;gap:9px}
+
+.dcard{background:var(--bg2);border:1px solid var(--rule);border-radius:var(--r);padding:17px 20px;cursor:pointer;transition:all var(--ease);position:relative;overflow:hidden}
+.dcard::after{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--indigo);opacity:0;transition:opacity var(--ease)}
+.dcard:hover{border-color:var(--rulei);background:var(--bg3)}.dcard:hover::after{opacity:1}
+
+.dcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:6px}
+.dcard-title{font-family:var(--serif);font-size:17px;font-style:italic;font-weight:300;color:var(--cream);flex:1;line-height:1.3}
+.dcard-title.none{color:var(--dim);font-style:normal;font-size:14px;font-family:var(--sans)}
+.dcard-meta{font-size:10.5px;color:var(--dim);flex-shrink:0;letter-spacing:.04em;margin-top:3px}
+.dcard-preview{font-size:12.5px;color:var(--muted);margin-bottom:9px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dcard-chips{display:flex;flex-wrap:wrap;gap:4px}
+
+.chip{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:500;letter-spacing:.03em;line-height:1.6}
+.c-theme{background:rgba(107,122,232,.13);color:var(--inhi);border:1px solid rgba(107,122,232,.2)}
+.c-feel{background:rgba(196,149,106,.1);color:var(--sand);border:1px solid rgba(196,149,106,.18)}
+.c-mood-p{background:rgba(61,155,150,.1);color:var(--tehi);border:1px solid rgba(61,155,150,.18)}
+.c-mood-n{background:rgba(74,76,98,.18);color:var(--muted);border:1px solid var(--rule)}
+.c-mood-u{background:rgba(155,107,232,.1);color:var(--vihi);border:1px solid rgba(155,107,232,.18)}
+.c-when{background:rgba(107,122,232,.07);color:var(--indigo);border:1px solid rgba(107,122,232,.14)}
+.c-type{background:rgba(255,255,255,.04);color:var(--dim);border:1px solid var(--rule)}
+.c-lucid{background:rgba(107,232,200,.1);color:#70E8D4;border:1px solid rgba(107,232,200,.2)}
+
+.empty{text-align:center;padding:70px 20px;color:var(--dim)}
+.empty span{font-size:44px;display:block;margin-bottom:14px;opacity:.35}
+.empty p{font-size:13px;line-height:1.8}
+
+/* ═══════════════════════════════════
+   ENTRY VIEW
+   ═══════════════════════════════════ */
+#view-entry{max-width:780px;margin:0 auto}
+
+.entry-topbar{padding:16px 28px;border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:50;background:rgba(5,6,13,.9);backdrop-filter:blur(14px);display:flex;align-items:center;gap:10px}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color var(--ease)}
+.back-btn:hover{color:var(--inhi)}
+.tb-sep{color:var(--dim);font-size:11px}
+.tb-crumb{font-size:12px;color:var(--dim)}
+.tb-actions{margin-left:auto;display:flex;gap:8px}
+
+.entry-body{padding:32px 28px 80px}
+
+/* TITLE AREA */
+.entry-icon{font-size:42px;margin-bottom:10px}
+.entry-main-title{font-family:var(--script);font-size:50px;letter-spacing:.13em;color:var(--cream);line-height:1;margin-bottom:6px}
+.entry-date{font-size:11px;color:var(--dim);letter-spacing:.06em}
+
+/* PROPERTY ROWS */
+.props{margin:22px 0 28px;display:flex;flex-direction:column;gap:0;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+.prop-row{display:grid;grid-template-columns:140px 1fr;align-items:start;padding:10px 14px;border-bottom:1px solid var(--rule);transition:background var(--ease)}
+.prop-row:last-child{border-bottom:none}
+.prop-row:hover{background:var(--bg2)}
+.prop-label{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding-top:3px;display:flex;align-items:center;gap:6px}
+.prop-label svg{opacity:.5;flex-shrink:0}
+.prop-val{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+
+/* MULTI-SELECT PROP */
+.ms-option{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:11px;cursor:pointer;border:1px solid var(--rule);background:var(--bg2);color:var(--muted);transition:all var(--ease);user-select:none}
+.ms-option:hover{border-color:var(--rulei);color:var(--inhi)}
+.ms-option.on{background:var(--ing);border-color:var(--rulei);color:var(--inhi)}
+.ms-option.on .ms-dot{background:var(--inhi)}
+.ms-dot{width:5px;height:5px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:background var(--ease)}
+
+/* mood colors */
+.ms-option.mood-p.on{background:rgba(61,155,150,.1);border-color:rgba(61,155,150,.2);color:var(--tehi)}.ms-option.mood-p.on .ms-dot{background:var(--tehi)}
+.ms-option.mood-n.on{background:rgba(74,76,98,.18);border-color:rgba(74,76,98,.3);color:var(--muted)}.ms-option.mood-n.on .ms-dot{background:var(--muted)}
+.ms-option.mood-u.on{background:rgba(155,107,232,.1);border-color:rgba(155,107,232,.2);color:var(--vihi)}.ms-option.mood-u.on .ms-dot{background:var(--vihi)}
+.ms-option.feel-joy.on{background:rgba(255,220,50,.08);border-color:rgba(255,220,50,.18);color:#F0D860}.ms-option.feel-joy.on .ms-dot{background:#F0D860}
+.ms-option.feel-surprise.on{background:rgba(107,122,232,.1);border-color:var(--rulei);color:var(--inhi)}.ms-option.feel-surprise.on .ms-dot{background:var(--inhi)}
+.ms-option.feel-delight.on{background:rgba(100,200,120,.1);border-color:rgba(100,200,120,.2);color:#78D890}.ms-option.feel-delight.on .ms-dot{background:#78D890}
+.ms-option.feel-fear.on{background:rgba(200,80,80,.1);border-color:rgba(200,80,80,.2);color:#E08080}.ms-option.feel-fear.on .ms-dot{background:#E08080}
+.ms-option.feel-anger.on{background:rgba(220,80,40,.1);border-color:rgba(220,80,40,.2);color:#E07858}.ms-option.feel-anger.on .ms-dot{background:#E07858}
+.ms-option.feel-sadness.on{background:rgba(80,120,200,.1);border-color:rgba(80,120,200,.2);color:#7AA0E0}.ms-option.feel-sadness.on .ms-dot{background:#7AA0E0}
+.ms-option.feel-excitement.on{background:rgba(196,149,106,.1);border-color:rgba(196,149,106,.2);color:var(--sand)}.ms-option.feel-excitement.on .ms-dot{background:var(--sand)}
+.ms-option.feel-disgust.on{background:rgba(140,100,60,.1);border-color:rgba(140,100,60,.2);color:#B09070}.ms-option.feel-disgust.on .ms-dot{background:#B09070}
+.ms-option.theme-lucid.on{background:rgba(107,232,200,.08);border-color:rgba(107,232,200,.18);color:#70E8D4}.ms-option.theme-lucid.on .ms-dot{background:#70E8D4}
+.ms-option.when-p.on{background:rgba(88,191,185,.08);border-color:rgba(88,191,185,.18);color:var(--tehi)}.ms-option.when-p.on .ms-dot{background:var(--tehi)}
+.ms-option.when-f.on{background:rgba(155,107,232,.08);border-color:rgba(155,107,232,.18);color:var(--vihi)}.ms-option.when-f.on .ms-dot{background:var(--vihi)}
+.ms-option.when-pa.on{background:rgba(196,149,106,.08);border-color:rgba(196,149,106,.18);color:var(--sand)}.ms-option.when-pa.on .ms-dot{background:var(--sand)}
+
+/* TEXT INPUT */
+.tinput{background:transparent;border:none;border-bottom:1px solid transparent;outline:none;color:var(--text);font-family:var(--sans);font-size:13px;width:100%;padding:2px 0;transition:border-color var(--ease)}
+.tinput:focus{border-bottom-color:var(--rulei)}
+.tinput::placeholder{color:var(--dim)}
+
+/* DATE INPUT */
+input[type=date]{background:var(--bg2);border:1px solid var(--rule);border-radius:var(--rs);padding:4px 9px;color:var(--muted);font-family:var(--sans);font-size:12.5px;outline:none;cursor:pointer;transition:all var(--ease);color-scheme:dark}
+input[type=date]:focus{border-color:var(--rulei)}
+
+/* ── SECTION HEADINGS ── */
+.sec{margin-bottom:24px}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:pointer;user-select:none}
+.sec-arrow{font-size:9px;color:var(--dim);transition:transform var(--ease)}
+.sec-head.collapsed .sec-arrow{transform:rotate(-90deg)}
+.sec-title{font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.sec-rule{flex:1;height:1px;background:linear-gradient(to right,var(--rulei),transparent)}
+.sec-body{}
+.sec-head.collapsed + .sec-body{display:none}
+
+/* ── DREAM NARRATIVE ── */
+.dream-text-area{width:100%;background:var(--bg2);border:1px solid var(--rule);border-radius:var(--r);padding:16px 18px;color:var(--text);font-family:var(--serif);font-size:15px;font-weight:300;line-height:1.8;outline:none;resize:vertical;min-height:160px;transition:border-color var(--ease);font-style:italic}
+.dream-text-area:focus{border-color:var(--rulei)}
+.dream-text-area::placeholder{color:var(--dim);font-style:italic}
+
+/* ── ELEMENTS ── */
+.elements-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.elem-box{background:var(--bg2);border:1px solid var(--rule);border-radius:var(--r);padding:14px}
+.elem-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.elem-input{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:13px;resize:none;line-height:1.6}
+.elem-input::placeholder{color:var(--dim)}
+
+/* ── SYMBOLS NUMBERED ── */
+.symbol-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.sym-row{display:flex;align-items:flex-start;gap:10px}
+.sym-num{font-size:10.5px;color:var(--dim);padding-top:6px;min-width:16px;text-align:right;flex-shrink:0}
+.sym-input{flex:1;background:var(--bg2);border:1px solid var(--rule);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;transition:border-color var(--ease)}
+.sym-input:focus{border-color:var(--rulei)}
+.sym-input::placeholder{color:var(--dim)}
+.sym-add{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--dim);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color var(--ease);padding:0}
+.sym-add:hover{color:var(--inhi)}
+
+/* ── TEXT BLOCK ── */
+.text-block{background:var(--bg2);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
+.tb-lbl{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.tb-ta{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:13px;resize:none;line-height:1.65;min-height:52px}
+.tb-ta::placeholder{color:var(--dim)}
+
+/* ── CLASSIFICATION ── */
+.class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.class-opt{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);border:1px solid var(--rule);border-radius:var(--rs);cursor:pointer;transition:all var(--ease);user-select:none}
+.class-opt:hover{border-color:var(--rulei)}
+.class-opt.on{background:var(--ing);border-color:var(--rulei)}
+.class-cb{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all var(--ease)}
+.class-opt.on .class-cb{background:var(--indigo);border-color:var(--indigo)}
+.class-cb-check{font-size:8px;color:#fff;opacity:0;transition:opacity var(--ease)}
+.class-opt.on .class-cb-check{opacity:1}
+.class-lbl{font-size:12.5px;color:var(--muted);transition:color var(--ease)}
+.class-opt.on .class-lbl{color:var(--inhi)}
+
+/* ── TASKS ── */
+.task-list{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.task-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:9px 13px;background:var(--bg2);border:1px solid var(--rule);border-radius:var(--rs);transition:all var(--ease)}
+.task-row.done{opacity:.5}
+.task-cb2{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--ease)}
+.task-row.done .task-cb2{background:var(--tehi);border-color:var(--tehi)}
+.task-check{font-size:9px;color:#fff;opacity:0;transition:opacity var(--ease)}
+.task-row.done .task-check{opacity:1}
+.task-name{font-size:13px;color:var(--text);background:transparent;border:none;outline:none;font-family:var(--sans);width:100%}
+.task-row.done .task-name{text-decoration:line-through;color:var(--dim)}
+.task-name::placeholder{color:var(--dim)}
+.task-date{font-size:11px;color:var(--dim);white-space:nowrap}
+.task-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:0;transition:color var(--ease)}
+.task-del:hover{color:#E07070}
+.task-add{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--dim);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color var(--ease);padding:0}
+.task-add:hover{color:var(--inhi)}
+
+/* ── SAVE BAR ── */
+.save-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 24px;background:rgba(5,6,13,.94);backdrop-filter:blur(14px);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;z-index:100}
+.save-hint{font-size:11.5px;color:var(--dim)}
+.save-hint span{color:var(--warm)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LIST VIEW ═══════════ -->
+<div class="view active fade" id="view-list">
+  <div id="view-list-inner" style="max-width:780px;margin:0 auto;padding:44px 24px">
+
+    <div class="list-hero">
+      <span class="lh-moon" id="list-moon-icon">🌖</span>
+      <div class="lh-title">Dream Journal</div>
+      <div class="lh-sub" id="list-moon-phase">Waning Gibbous · Moon in Scorpio</div>
+    </div>
+
+    <div class="list-bar">
+      <span class="list-count" id="list-count">0 entries</span>
+      <button class="btn btn-i" onclick="openNew()">+ New Dream</button>
+    </div>
+
+    <div class="list-filters" id="list-filters">
+      <div class="filter-chip on" onclick="setFilter('all',this)">All</div>
+      <div class="filter-chip" onclick="setFilter('Lucid',this)">Lucid</div>
+      <div class="filter-chip" onclick="setFilter('Nightmare',this)">Nightmare</div>
+      <div class="filter-chip" onclick="setFilter('Vivid',this)">Vivid</div>
+      <div class="filter-chip" onclick="setFilter('Answer',this)">Answer</div>
+      <div class="filter-chip" onclick="setFilter('Mediumship',this)">Mediumship</div>
+      <div class="filter-chip" onclick="setFilter('Alt Dimension',this)">Alt Dimension</div>
+    </div>
+
+    <div class="dream-list" id="dream-list">
+      <div class="empty"><span>🌙</span><p>Your dreams live here.<br>Tap <strong>New Dream</strong> to record your first entry.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ENTRY VIEW ═══════════ -->
+<div class="view fade" id="view-entry">
+
+  <div class="entry-topbar">
+    <button class="back-btn" onclick="goList()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Dream Journal
+    </button>
+    <span class="tb-sep">/</span>
+    <span class="tb-crumb" id="tb-crumb">Dream</span>
+    <div class="tb-actions">
+      <button class="btn btn-ghost btn-sm" onclick="deleteDream()">Delete</button>
+      <button class="btn btn-i btn-sm" onclick="saveDream()">Save</button>
+    </div>
+  </div>
+
+  <div class="entry-body">
+    <input type="hidden" id="entry-id">
+
+    <!-- TITLE -->
+    <div style="margin-bottom:24px">
+      <div class="entry-icon">😴</div>
+      <div class="entry-main-title">Dream</div>
+      <div class="entry-date" id="entry-date-display">—</div>
+    </div>
+
+    <!-- PROPERTIES -->
+    <div class="props" id="props-block">
+
+      <!-- THEMES -->
+      <div class="prop-row">
+        <div class="prop-label">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 3h10M1 6h7M1 9h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Themes
+        </div>
+        <div class="prop-val" id="prop-themes"></div>
+      </div>
+
+      <!-- INITIAL FEELING -->
+      <div class="prop-row">
+        <div class="prop-label">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M4 7s.8 1.5 2 1.5S8 7 8 7M4.5 4.5h.01M7.5 4.5h.01" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Initial Feeling
+        </div>
+        <div class="prop-val" id="prop-feeling"></div>
+      </div>
+
+      <!-- MOOD -->
+      <div class="prop-row">
+        <div class="prop-label">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 108 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M6 2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Mood
+        </div>
+        <div class="prop-val" id="prop-mood"></div>
+      </div>
+
+      <!-- WHEN -->
+      <div class="prop-row">
+        <div class="prop-label">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3.5V6l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          When
+        </div>
+        <div class="prop-val" id="prop-when"></div>
+      </div>
+
+      <!-- SONG -->
+      <div class="prop-row">
+        <div class="prop-label">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 9V3.5l6-1.5V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3" cy="9" r="1.2" stroke="currentColor" stroke-width="1"/><circle cx="9" cy="7" r="1.2" stroke="currentColor" stroke-width="1"/></svg>
+          Song
+        </div>
+        <div class="prop-val"><input class="tinput" id="prop-song" placeholder="Song heard in dream…"></div>
+      </div>
+
+      <!-- DATE -->
+      <div class="prop-row">
+        <div class="prop-label">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5.5h10M4 1v3M8 1v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Date
+        </div>
+        <div class="prop-val"><input type="date" id="prop-date"></div>
+      </div>
+
+    </div>
+
+    <!-- ELEMENTS -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">Elements</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <div class="elements-grid">
+          <div class="elem-box">
+            <div class="elem-label">Symbols</div>
+            <textarea class="elem-input" id="elem-symbols" rows="3" placeholder="Objects, animals, archetypes that appeared…"></textarea>
+          </div>
+          <div class="elem-box">
+            <div class="elem-label">Colors</div>
+            <textarea class="elem-input" id="elem-colors" rows="3" placeholder="Dominant colors, light quality, atmosphere…"></textarea>
+          </div>
+          <div class="elem-box">
+            <div class="elem-label">People / Part of Me</div>
+            <textarea class="elem-input" id="elem-people" rows="3" placeholder="Who appeared? What part of you might they represent?"></textarea>
+          </div>
+          <div class="elem-box">
+            <div class="elem-label">Place</div>
+            <textarea class="elem-input" id="elem-place" rows="3" placeholder="Settings, environments, geography…"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DREAM NARRATIVE -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">Dream</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <textarea class="dream-text-area" id="dream-narrative" placeholder="Write your dream here — in as much detail as you can recall. Write in present tense: I am standing in… The light feels…"></textarea>
+      </div>
+    </div>
+
+    <!-- MAIN SYMBOLS (numbered) -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">Main Symbols</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <div class="symbol-list" id="main-symbols">
+          <div class="sym-row"><span class="sym-num">1</span><input class="sym-input" placeholder="Primary symbol…"></div>
+          <div class="sym-row"><span class="sym-num">2</span><input class="sym-input" placeholder="Secondary symbol…"></div>
+          <div class="sym-row"><span class="sym-num">3</span><input class="sym-input" placeholder="Third symbol…"></div>
+        </div>
+        <button class="sym-add" onclick="addSymbol()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Add symbol
+        </button>
+      </div>
+    </div>
+
+    <!-- SYMBOL DIALOGUES -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">Symbol Dialogues</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <div class="text-block">
+          <div class="tb-lbl">If a symbol could speak, what would it say?</div>
+          <textarea class="tb-ta" id="symbol-dialogues" rows="4" placeholder="Symbol: 'I represent…' / Me: 'What do you want me to know?'…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY INTERPRETATIONS -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">My Interpretations</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <div class="text-block">
+          <div class="tb-lbl">My active role / aspect in the dream is…</div>
+          <textarea class="tb-ta" id="interp-role" rows="2" placeholder="I am the…"></textarea>
+        </div>
+        <div class="text-block">
+          <div class="tb-lbl">The opposite role / aspect is…</div>
+          <textarea class="tb-ta" id="interp-opposite" rows="2" placeholder="The shadow or counterpart is…"></textarea>
+        </div>
+        <div class="text-block">
+          <div class="tb-lbl">This could / couldn't happen in real life</div>
+          <textarea class="tb-ta" id="interp-reallife" rows="2" placeholder="What does the physics of this dream tell you?"></textarea>
+        </div>
+        <div class="text-block">
+          <div class="tb-lbl">Full interpretation</div>
+          <textarea class="tb-ta" id="interp-full" rows="5" placeholder="What does this dream mean to you? What is your psyche working through?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASSIFICATION -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">Classification</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <div class="class-grid" id="classification">
+          <div class="class-opt" onclick="toggleClass(this,'Literal')"><div class="class-cb"><span class="class-cb-check">✓</span></div><span class="class-lbl">Literal</span></div>
+          <div class="class-opt" onclick="toggleClass(this,'Symbolic')"><div class="class-cb"><span class="class-cb-check">✓</span></div><span class="class-lbl">Symbolic</span></div>
+          <div class="class-opt" onclick="toggleClass(this,'Urgent')"><div class="class-cb"><span class="class-cb-check">✓</span></div><span class="class-lbl">Urgent</span></div>
+          <div class="class-opt" onclick="toggleClass(this,'Important')"><div class="class-cb"><span class="class-cb-check">✓</span></div><span class="class-lbl">Important</span></div>
+          <div class="class-opt" onclick="toggleClass(this,'Interesting')"><div class="class-cb"><span class="class-cb-check">✓</span></div><span class="class-lbl">Interesting</span></div>
+          <div class="class-opt" onclick="toggleClass(this,'Trivial')"><div class="class-cb"><span class="class-cb-check">✓</span></div><span class="class-lbl">Trivial</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="sec">
+      <div class="sec-head" onclick="toggleSec(this)">
+        <span class="sec-arrow">▼</span>
+        <span class="sec-title">Actions I'm Taking</span>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="sec-body">
+        <div class="task-list" id="task-list"></div>
+        <button class="task-add" onclick="addTask()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Add action
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /entry-body -->
+
+  <div class="save-bar">
+    <span class="save-hint">Last saved: <span id="save-hint-time">never</span></span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="goList()">Cancel</button>
+      <button class="btn btn-i btn-sm" onclick="saveDream()">Save Dream</button>
+    </div>
+  </div>
+
+</div><!-- /view-entry -->
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const STORE = 'dreamjournal_v1';
+let dreams = [];
+let currentId = null;
+let currentFilter = 'all';
+let symbolCount = 3;
+
+function loadDreams() {
+  try { dreams = JSON.parse(localStorage.getItem(STORE)) || []; }
+  catch(e) { dreams = []; }
+}
+function saveDreams() {
+  localStorage.setItem(STORE, JSON.stringify(dreams));
+}
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+// ═══════════════════════════════════════════
+// MOON
+// ═══════════════════════════════════════════
+function moonPhase(d) {
+  const ref = new Date('2000-01-06T18:14:00Z'), cyc = 29.53059;
+  const p = (((d - ref) / 86400000 % cyc) + cyc) % cyc / cyc;
+  if (p < .034) return { n: 'New Moon', i: '🌑' };
+  if (p < .25)  return { n: 'Waxing Crescent', i: '🌒' };
+  if (p < .284) return { n: 'First Quarter', i: '🌓' };
+  if (p < .5)   return { n: 'Waxing Gibbous', i: '🌔' };
+  if (p < .534) return { n: 'Full Moon', i: '🌕' };
+  if (p < .75)  return { n: 'Waning Gibbous', i: '🌖' };
+  if (p < .784) return { n: 'Last Quarter', i: '🌗' };
+  return { n: 'Waning Crescent', i: '🌘' };
+}
+
+// ═══════════════════════════════════════════
+// PROP DEFINITIONS
+// ═══════════════════════════════════════════
+const THEMES = [
+  { v: 'School', cls: '' },
+  { v: 'Tribe', cls: '' },
+  { v: 'People Amalgams', cls: '' },
+  { v: 'Telepathy', cls: '' },
+  { v: 'Movie', cls: '' },
+  { v: 'Gathering', cls: '' },
+  { v: 'Nightmare', cls: '' },
+  { v: 'Answer', cls: '' },
+  { v: 'Waking Life Parallels', cls: '' },
+  { v: 'Dreamscape', cls: '' },
+  { v: 'Alt Dimension', cls: '' },
+  { v: 'Mediumship', cls: '' },
+  { v: 'Vivid', cls: '' },
+  { v: 'Timeless', cls: '' },
+  { v: 'Lucid', cls: 'theme-lucid' },
+];
+
+const FEELINGS = [
+  { v: 'Joy', cls: 'feel-joy' },
+  { v: 'Surprise', cls: 'feel-surprise' },
+  { v: 'Delight', cls: 'feel-delight' },
+  { v: 'Fear', cls: 'feel-fear' },
+  { v: 'Anger', cls: 'feel-anger' },
+  { v: 'Sadness', cls: 'feel-sadness' },
+  { v: 'Excitement', cls: 'feel-excitement' },
+  { v: 'Disgust', cls: 'feel-disgust' },
+];
+
+const MOODS = [
+  { v: 'Pleasant', cls: 'mood-p' },
+  { v: 'Neutral', cls: 'mood-n' },
+  { v: 'Unpleasant', cls: 'mood-u' },
+];
+
+const WHENS = [
+  { v: 'Present', cls: 'when-p' },
+  { v: 'Future', cls: 'when-f' },
+  { v: 'Past', cls: 'when-pa' },
+];
+
+function buildMultiSelect(containerId, options) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  options.forEach(opt => {
+    const d = document.createElement('div');
+    d.className = `ms-option ${opt.cls}`;
+    d.dataset.val = opt.v;
+    d.innerHTML = `<div class="ms-dot"></div>${opt.v}`;
+    d.onclick = () => d.classList.toggle('on');
+    el.appendChild(d);
+  });
+}
+
+function getSelected(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} .ms-option.on`)).map(e => e.dataset.val);
+}
+
+function setSelected(containerId, vals) {
+  document.querySelectorAll(`#${containerId} .ms-option`).forEach(e => {
+    e.classList.toggle('on', vals && vals.includes(e.dataset.val));
+  });
+}
+
+// ═══════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.classList.remove('fade');
+  void el.offsetWidth;
+  el.classList.add('fade');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goList() {
+  renderList();
+  showView('view-list');
+}
+
+// ═══════════════════════════════════════════
+// LIST
+// ═══════════════════════════════════════════
+function setFilter(f, chip) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+  chip.classList.add('on');
+  renderList();
+}
+
+function renderList() {
+  loadDreams();
+  const m = moonPhase(new Date());
+  document.getElementById('list-moon-icon').textContent = m.i;
+  document.getElementById('list-moon-phase').textContent = m.n + ' · Moon in Scorpio';
+
+  let filtered = currentFilter === 'all' ? dreams :
+    dreams.filter(d => d.themes && d.themes.includes(currentFilter));
+
+  filtered = [...filtered].sort((a, b) => b.createdAt - a.createdAt);
+
+  const el = document.getElementById('dream-list');
+  document.getElementById('list-count').textContent =
+    filtered.length + (filtered.length === 1 ? ' entry' : ' entries');
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty"><span>🌙</span><p>${currentFilter === 'all' ? 'Your dreams live here.<br>Tap <strong>New Dream</strong> to record your first entry.' : 'No ' + currentFilter + ' dreams yet.'}</p></div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.map(d => {
+    const date = d.date ? new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 
+      new Date(d.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const moon = moonPhase(new Date(d.createdAt));
+    const chips = [
+      ...(d.themes || []).slice(0, 3).map(t => {
+        const cls = t === 'Lucid' ? 'c-lucid' : 'c-theme';
+        return `<span class="chip ${cls}">${t}</span>`;
+      }),
+      ...(d.initialFeeling || []).slice(0, 2).map(f => `<span class="chip c-feel">${f}</span>`),
+      ...(d.mood || []).map(m => {
+        const cls = m === 'Pleasant' ? 'c-mood-p' : m === 'Unpleasant' ? 'c-mood-u' : 'c-mood-n';
+        return `<span class="chip ${cls}">${m}</span>`;
+      }),
+      ...(d.when || []).map(w => `<span class="chip c-when">${w}</span>`),
+      ...(d.classification || []).slice(0, 2).map(c => `<span class="chip c-type">${c}</span>`),
+    ].join('');
+
+    return `<div class="dcard" onclick="openDream('${d.id}')">
+      <div class="dcard-top">
+        <div class="dcard-title ${!d.narrative ? 'none'}">${d.narrative ? (d.narrative.substring(0, 60) + (d.narrative.length > 60 ? '…' : '')) : 'Untitled dream'}</div>
+        <div class="dcard-meta">${moon.i} ${date}</div>
+      </div>
+      ${d.narrative && d.narrative.length > 60 ? `<div class="dcard-preview">${d.narrative}</div>` : ''}
+      <div class="dcard-chips">${chips}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// NEW / OPEN
+// ═══════════════════════════════════════════
+function openNew() {
+  currentId = genId();
+  const now = new Date();
+  const entry = {
+    id: currentId,
+    createdAt: now.getTime(),
+    themes: [], initialFeeling: [], mood: [], when: [],
+    song: '', date: now.toISOString().split('T')[0],
+    elemSymbols: '', elemColors: '', elemPeople: '', elemPlace: '',
+    narrative: '', mainSymbols: ['', '', ''],
+    symbolDialogues: '', interpRole: '', interpOpposite: '',
+    interpRealLife: '', interpFull: '',
+    classification: [], tasks: []
+  };
+  dreams.unshift(entry);
+  saveDreams();
+  populateEntry(entry);
+  showView('view-entry');
+}
+
+function openDream(id) {
+  loadDreams();
+  currentId = id;
+  const entry = dreams.find(d => d.id === id);
+  if (!entry) return;
+  populateEntry(entry);
+  showView('view-entry');
+}
+
+function populateEntry(entry) {
+  symbolCount = Math.max(3, (entry.mainSymbols || []).length);
+
+  document.getElementById('entry-id').value = entry.id;
+  document.getElementById('tb-crumb').textContent = 'Dream';
+
+  const date = entry.date ? new Date(entry.date + 'T12:00:00') : new Date(entry.createdAt);
+  document.getElementById('entry-date-display').textContent =
+    date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+  buildMultiSelect('prop-themes', THEMES);
+  buildMultiSelect('prop-feeling', FEELINGS);
+  buildMultiSelect('prop-mood', MOODS);
+  buildMultiSelect('prop-when', WHENS);
+
+  setSelected('prop-themes', entry.themes);
+  setSelected('prop-feeling', entry.initialFeeling);
+  setSelected('prop-mood', entry.mood);
+  setSelected('prop-when', entry.when);
+
+  document.getElementById('prop-song').value = entry.song || '';
+  document.getElementById('prop-date').value = entry.date || '';
+
+  document.getElementById('elem-symbols').value = entry.elemSymbols || '';
+  document.getElementById('elem-colors').value = entry.elemColors || '';
+  document.getElementById('elem-people').value = entry.elemPeople || '';
+  document.getElementById('elem-place').value = entry.elemPlace || '';
+
+  document.getElementById('dream-narrative').value = entry.narrative || '';
+
+  // Main symbols
+  const symList = document.getElementById('main-symbols');
+  symList.innerHTML = '';
+  const syms = entry.mainSymbols || ['', '', ''];
+  symList.innerHTML = syms.map((s, i) =>
+    `<div class="sym-row"><span class="sym-num">${i + 1}</span><input class="sym-input" value="${s.replace(/"/g, '&quot;')}" placeholder="${i === 0 ? 'Primary symbol…' : i === 1 ? 'Secondary symbol…' : 'Symbol…'}"></div>`
+  ).join('');
+
+  document.getElementById('symbol-dialogues').value = entry.symbolDialogues || '';
+  document.getElementById('interp-role').value = entry.interpRole || '';
+  document.getElementById('interp-opposite').value = entry.interpOpposite || '';
+  document.getElementById('interp-reallife').value = entry.interpRealLife || '';
+  document.getElementById('interp-full').value = entry.interpFull || '';
+
+  // Classification
+  document.querySelectorAll('.class-opt').forEach(opt => {
+    const lbl = opt.querySelector('.class-lbl').textContent;
+    opt.classList.toggle('on', (entry.classification || []).includes(lbl));
+  });
+
+  // Tasks
+  renderTasks(entry.tasks || []);
+
+  document.getElementById('save-hint-time').textContent = 'never';
+}
+
+// ═══════════════════════════════════════════
+// TASKS
+// ═══════════════════════════════════════════
+function renderTasks(tasks) {
+  const el = document.getElementById('task-list');
+  el.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'task-row' + (t.done ? ' done' : '');
+    row.innerHTML = `
+      <div class="task-cb2" onclick="toggleTask(${i})"><span class="task-check">✓</span></div>
+      <input class="task-name" value="${(t.name || '').replace(/"/g, '&quot;')}" placeholder="Action…" oninput="updateTask(${i},'name',this.value)">
+      <span class="task-date">${t.dueDate || ''}</span>
+      <button class="task-del" onclick="removeTask(${i})">×</button>`;
+    el.appendChild(row);
+  });
+}
+
+function addTask() {
+  loadDreams();
+  const entry = dreams.find(d => d.id === currentId);
+  if (!entry) return;
+  if (!entry.tasks) entry.tasks = [];
+  entry.tasks.push({ name: '', done: false, dueDate: '' });
+  saveDreams();
+  renderTasks(entry.tasks);
+  // focus new input
+  const inputs = document.querySelectorAll('.task-name');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function toggleTask(i) {
+  loadDreams();
+  const entry = dreams.find(d => d.id === currentId);
+  if (!entry || !entry.tasks[i]) return;
+  entry.tasks[i].done = !entry.tasks[i].done;
+  saveDreams();
+  renderTasks(entry.tasks);
+}
+
+function updateTask(i, field, val) {
+  loadDreams();
+  const entry = dreams.find(d => d.id === currentId);
+  if (!entry || !entry.tasks[i]) return;
+  entry.tasks[i][field] = val;
+  saveDreams();
+}
+
+function removeTask(i) {
+  loadDreams();
+  const entry = dreams.find(d => d.id === currentId);
+  if (!entry) return;
+  entry.tasks.splice(i, 1);
+  saveDreams();
+  renderTasks(entry.tasks);
+}
+
+// ═══════════════════════════════════════════
+// SYMBOLS
+// ═══════════════════════════════════════════
+function addSymbol() {
+  symbolCount++;
+  const list = document.getElementById('main-symbols');
+  const row = document.createElement('div');
+  row.className = 'sym-row';
+  row.innerHTML = `<span class="sym-num">${symbolCount}</span><input class="sym-input" placeholder="Symbol…">`;
+  list.appendChild(row);
+}
+
+// ═══════════════════════════════════════════
+// SAVE
+// ═══════════════════════════════════════════
+function saveDream() {
+  loadDreams();
+  const idx = dreams.findIndex(d => d.id === currentId);
+  if (idx === -1) return;
+
+  const syms = Array.from(document.querySelectorAll('#main-symbols .sym-input')).map(i => i.value);
+
+  dreams[idx] = {
+    ...dreams[idx],
+    themes: getSelected('prop-themes'),
+    initialFeeling: getSelected('prop-feeling'),
+    mood: getSelected('prop-mood'),
+    when: getSelected('prop-when'),
+    song: document.getElementById('prop-song').value,
+    date: document.getElementById('prop-date').value,
+    elemSymbols: document.getElementById('elem-symbols').value,
+    elemColors: document.getElementById('elem-colors').value,
+    elemPeople: document.getElementById('elem-people').value,
+    elemPlace: document.getElementById('elem-place').value,
+    narrative: document.getElementById('dream-narrative').value,
+    mainSymbols: syms,
+    symbolDialogues: document.getElementById('symbol-dialogues').value,
+    interpRole: document.getElementById('interp-role').value,
+    interpOpposite: document.getElementById('interp-opposite').value,
+    interpRealLife: document.getElementById('interp-reallife').value,
+    interpFull: document.getElementById('interp-full').value,
+    classification: Array.from(document.querySelectorAll('.class-opt.on')).map(e => e.querySelector('.class-lbl').textContent),
+  };
+
+  saveDreams();
+  const now = new Date();
+  document.getElementById('save-hint-time').textContent =
+    now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function deleteDream() {
+  if (!confirm('Delete this dream entry?')) return;
+  loadDreams();
+  dreams = dreams.filter(d => d.id !== currentId);
+  saveDreams();
+  goList();
+}
+
+// ═══════════════════════════════════════════
+// SECTION TOGGLES
+// ═══════════════════════════════════════════
+function toggleSec(head) {
+  head.classList.toggle('collapsed');
+}
+
+function toggleClass(el, val) {
+  el.classList.toggle('on');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadDreams();
+  renderList();
+});
+</script>
+</body>
+</html>
